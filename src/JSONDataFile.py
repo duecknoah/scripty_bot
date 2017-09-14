@@ -1,5 +1,6 @@
 import json
 import threading # used to attempt to write to disk every 5 seconds if data was changed
+import copy # allows for deep copying of dictionary data used in json
 """Allows simple loading, getting, and setting of an individual json data file.
 
 The JSONDataFile is always kept in sync with the file it represents on disk.
@@ -43,6 +44,8 @@ class JSONDataFile:
 
     # writes the data stored in (__data) to the file (__file) if data was changed
     def __write_data_to_disk(self):
+        self.__data_change_check()
+
         if self.__dataWasChanged:
             # Update file on disk
             with open(self.__file, "w") as json_data_file:
@@ -51,16 +54,24 @@ class JSONDataFile:
             # Set data was changed to false as the data in memory
             # is the same as in the file now
             self.__dataWasChanged = False
-            self.__dataLast = dict(self.__data) # copy
+            self.__dataLast = copy.deepcopy(self.__data) # copy
         self.__start_auto_save_timer()
 
-    # Set the json data if data was changed
+    # Forcefully sets the entire json data, use carefully
     def set_data(self, data):
         self.__data = data
+
+    # Checks if data was changed, if so, mark it in self.__dataWasChanged
+    def __data_change_check(self):
         # Mark if data was actually changed since last write
         if (str(self.__data) != str(self.__dataLast)):
             self.__dataWasChanged = True
 
-    # Gets the data of the json file
+    # Gets the data of the json file, note that this is a direct reference
+    # and not a copy of the data
     def get_data(self):
         return self.__data
+
+    # Saves and closes the JSON file while removing any threads on a timer
+    def close(self):
+        self.__write_data_to_disk()
