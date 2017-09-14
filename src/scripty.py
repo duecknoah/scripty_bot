@@ -12,9 +12,9 @@ USER - Permission to execute any command
 SUPERUSER - Full permissions to use any command.
 '''
 class Permission(Enum):
-    DEFAULT = 0
-    USER = 1
-    SUPERUSER = 2
+    DEFAULT = 0 # The lowest default permission for any user in a server
+    USER = 1 # The middle permission, allows a user to use general commands like running a script
+    SUPERUSER = 2 # The highest permission, allows a user to use any command
 
 # Log discord debug information
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +53,11 @@ async def run_command(message, fromConsole=False):
        message string is stored in message.content. This is done to simplify message
        checks
     '''
+    # Ignore messages written by the bot (itself) to prevent spamming
+    if not fromConsole:
+        if message.author.id == client.user.id:
+            return
+
     # Get permission level and string of message
     permissionLevel = Permission.DEFAULT
     messageString = ''
@@ -62,25 +67,35 @@ async def run_command(message, fromConsole=False):
     else:
         permissionLevel = getPermissionLevel(message.author)
         messageString = message.content
-    print(permissionLevel)
 
-    if (messageString.startswith(C_PREFIX + "test")):
-        if fromConsole:
-            print("It works!")
-        else:
-            await client.send_message(message.channel, "It works!")
-        return
-    # Logs the bot out, and saves any other data
-    if (messageString.startswith(C_PREFIX + "logout")):
-        if not fromConsole:
-            await client.send_message(message.channel, "Logging out ...")
-        print("Logging out.")
-        client.logout()
-        # write any data and close
-        PROPERTIES_FILE.close()
-        SCRIPTS_FILE.close()
-        USERS_FILE.close()
-        exit(0)
+    # Commands that can be executed by anyone or anyone with higher permission
+    if (permissionLevel.value >= Permission.DEFAULT.value):
+        if (messageString.startswith(C_PREFIX + "test")):
+            if fromConsole:
+                print("It works!")
+            else:
+                await client.send_message(message.channel, "It works!")
+            return
+    # Commands that can be executed by anyone with the permission of USER or any higher permission
+    if (permissionLevel.value >= Permission.USER.value):
+        pass
+    # Commands that can be executed by any superuser
+    if (permissionLevel.value == Permission.SUPERUSER.value):
+        # Logs the bot out, and saves any other data
+        if (messageString.startswith(C_PREFIX + "logout")):
+            if not fromConsole:
+                await client.send_message(message.channel, "Logging out ...")
+            print("Logging out.")
+            client.logout()
+            # write any data and close
+            PROPERTIES_FILE.close()
+            SCRIPTS_FILE.close()
+            USERS_FILE.close()
+            exit(0)
+    if (fromConsole):
+        print("Unknown command")
+    else:
+        await client.send_message(message.channel, "Unknown command or you do not have permission to use that command")
 
 '''This is the console that allows the owner who is running the server to always have permission
 as a superuser.
