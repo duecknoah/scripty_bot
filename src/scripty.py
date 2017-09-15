@@ -16,6 +16,24 @@ class Permission(Enum):
     USER = 1 # The middle permission, allows a user to use general commands like running a script
     SUPERUSER = 2 # The highest permission, allows a user to use any command
 
+# A list of commands organized under which permissions are needed (minimum) to execute that command
+COMMANDS = {
+    Permission.DEFAULT: ['test'],
+    Permission.USER: [],
+    Permission.SUPERUSER: ['logout']
+}
+
+# Returns a list of permitted commands for the specified
+# user based off their permissions
+def get_permitted_commands_for(permission_level):
+    commands_permitted = []
+    for i in COMMANDS.keys():
+        for j in COMMANDS[i]:
+            if j == None:
+                continue
+            commands_permitted.append(j)
+    return commands_permitted
+
 # Log discord debug information
 logging.basicConfig(level=logging.INFO)
 
@@ -33,13 +51,13 @@ C_PREFIX = '$' # The prefix for all commands
 TOKEN = PROPERTIES_FILE.get_data()['token'] # the token for the bot
 
 ######################### Variables #########################
-isConnected = False # Is the client logged in and connected?
-isRunning = True # Is the client running
-hasSuperuser = len(USERS_FILE.get_data()['superusers']) > 0 # is there any superusers yet?
+is_connected = False # Is the client logged in and connected?
+is_running = True # Is the client running
+has_superuser = len(USERS_FILE.get_data()['superusers']) > 0 # is there any superusers yet?
 client = discord.Client()
 
 # Returns the permission level of the user
-def getPermissionLevel(user_id):
+def get_permission_level(user_id):
     users = USERS_FILE.get_data()
     if (user_id in users['superusers']):
         return Permission.SUPERUSER
@@ -47,43 +65,53 @@ def getPermissionLevel(user_id):
         return Permission.USER
     return Permission.DEFAULT
 
-async def run_command(message, fromConsole=False):
+async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in
        However, if its not (ex. message sent through the client), then the
        message string is stored in message.content. This is done to simplify message
        checks
     '''
     # Ignore messages written by the bot (itself) to prevent spamming
-    if not fromConsole:
+    if not FROM_CONSOLE:
         if message.author.id == client.user.id:
             return
 
     # Get permission level and string of message
-    permissionLevel = Permission.DEFAULT
-    messageString = ''
-    if fromConsole:
-        permissionLevel = Permission.SUPERUSER
-        messageString = message
+    permission_level = Permission.DEFAULT
+    message_string = ''
+    if FROM_CONSOLE:
+        permission_level = Permission.SUPERUSER
+        message_string = message
     else:
-        permissionLevel = getPermissionLevel(message.author)
-        messageString = message.content
+        permission_level = get_permission_level(message.author.id)
+        message_string = message.content
+
+    # If the message doesn't start with the prefix, return
+    if not message_string.startswith(C_PREFIX):
+        return
 
     # Commands that can be executed by anyone or anyone with higher permission
-    if (permissionLevel.value >= Permission.DEFAULT.value):
-        if (messageString.startswith(C_PREFIX + "test")):
-            if fromConsole:
+    if (permission_level.value >= Permission.DEFAULT.value):
+        if (message_string.startswith(C_PREFIX + "test")):
+            if FROM_CONSOLE:
                 print("It works!")
             else:
                 await client.send_message(message.channel, "It works!")
             return
+        if (message_string.startswith(C_PREFIX + "permission")):
+            if FROM_CONSOLE:
+                print(Permission.SUPERUSER)
+            else:
+                await client.send_message(message.channel, "{}'s permission level is {}".format(message.author.mention, permission_level))
+            return
     # Commands that can be executed by anyone with the permission of USER or any higher permission
-    if (permissionLevel.value >= Permission.USER.value):
+    if (permission_level.value >= Permission.USER.value):
         pass
     # Commands that can be executed by any superuser
-    if (permissionLevel.value == Permission.SUPERUSER.value):
+    if (permission_level.value == Permission.SUPERUSER.value):
         # Logs the bot out, and saves any other data
-        if (messageString.startswith(C_PREFIX + "logout")):
-            if not fromConsole:
+        if (message_string.startswith(C_PREFIX + "logout")):
+            if not FROM_CONSOLE:
                 await client.send_message(message.channel, "Logging out ...")
             print("Logging out.")
             client.logout()
@@ -91,8 +119,8 @@ async def run_command(message, fromConsole=False):
             PROPERTIES_FILE.close()
             SCRIPTS_FILE.close()
             USERS_FILE.close()
-            exit(0)
-    if (fromConsole):
+            exit(1)
+    if (FROM_CONSOLE):
         print("Unknown command")
     else:
         await client.send_message(message.channel, "Unknown command or you do not have permission to use that command")
@@ -104,7 +132,7 @@ async def console():
     while True:
         text = await aioconsole.ainput('$ ')
         command = '$' + text.strip()
-        await run_command(command, fromConsole=True)
+        await run_command(command, FROM_CONSOLE=True)
 
 @client.event
 async def on_ready():
@@ -120,7 +148,7 @@ async def on_ready():
     p_json['token'] = TOKEN
     PROPERTIES_FILE.set_data(p_json)
     # Make user add self as a superuser
-    if (not hasSuperuser):
+    if (not has_superuser):
         first_superuser = input("Add yourself as a superuser (input user id): ")
         users = USERS_FILE.get_data()
         users['superusers'].append(first_superuser)
