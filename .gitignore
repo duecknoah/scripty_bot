@@ -7,3 +7,6 @@
 # generated python files
 *.pyc
 *.pyo
+
+# IDE's dotfiles
+*.idea
