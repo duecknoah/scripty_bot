@@ -7,16 +7,17 @@
         - Show a list of currently running scripts
         - Kill specific running scripts via command
 """
+# Support for modification in file path
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import discord
 import aioconsole
 import logging
 from src.JSONDataFile import JSONDataFile
 import src.user.permissions as permissions
 import src.user.commands as commands
-# Support for modification in file path
-import sys
-import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Log discord debug information
 logging.basicConfig(level=logging.INFO)
@@ -143,13 +144,13 @@ async def run_command(message, FROM_CONSOLE=False):
         if FROM_CONSOLE:
             commands_list = commands.get_permitted_commands_for(
                 permissions.PermissionLevel.SUPERUSER)
-        else:
-            commands_list = commands.get_permitted_commands_for(permission_level)
-        for i in commands_list:
-            commands_str_tidy += i.get_help_decorated() + '\n'
-        if FROM_CONSOLE:
+            for i in commands_list:
+                commands_str_tidy += i.get_help() + '\n'
             print(commands_str_tidy)
         else:
+            commands_list = commands.get_permitted_commands_for(permission_level)
+            for i in commands_list:
+                commands_str_tidy += i.get_help_decorated() + '\n'
             await client.send_message(message.channel, "**Available commands for {}:**\n{}\n{}"
                                       .format(message.author.name, commands_str_tidy, note))
         return
