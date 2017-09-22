@@ -1,8 +1,8 @@
 # JSON files made on launch, changes based on user actions
 #######################
-/src/properties.json
-/src/scripts.json
-/src/users.json
+/data/properties.json
+/data/scripts.json
+/data/users.json
 
 # generated python files
 *.pyc
