@@ -38,6 +38,18 @@ def keyword_function_user_reference(string):
     except ValueError:
         return None
 
+def keyword_function_number(string):
+    """Checks if the string is a number
+
+    Returns None if not a match
+    Returns the number if a match
+    """
+    try:
+        number = float(string)
+        return number
+    except ValueError:
+        return None
+
 class CommandKeywords(Enum):
     """A keyword in a command that represents a special match in the string
 
@@ -57,6 +69,7 @@ class CommandKeywords(Enum):
         index[1]: holds the keyword function
     """
     USER_REFERENCE = ('<user>', keyword_function_user_reference)
+    NUMBER = ('<number>', keyword_function_number)
 
 def get_keyword_string_of(keyword):
     """Gets the keyword string of the keyword"""

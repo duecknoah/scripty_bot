@@ -42,9 +42,16 @@ def init():
                                   'sets the permission level of \'user\' to to default',
                                   PermissionLevel.SUPERUSER,
                                   command_functions.set_perm_to_default)
+
+    PURGE = Command('purge {}'.format(
+        get_keyword_string_of(CommandKeywords.NUMBER)),
+                                  'Removes \'number\' amount of messages from this channel (max 100)',
+                                  PermissionLevel.SUPERUSER,
+                                  command_functions.purge)
     # Add these commands to the command list
     command_list.extend((
         HELP, TEST, PERMISSION_CHECK,
         LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
-        SET_PERM_TO_USER, SET_PERM_TO_DEFAULT
+        SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
+        PURGE
     ))

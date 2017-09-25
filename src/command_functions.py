@@ -91,3 +91,23 @@ async def __set_perm_to(permission, client, message, match_result, as_permission
         print(reply_message)
     else:
         await client.send_message(message.channel, reply_message)
+
+async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """ removes n amount of messages from the messages channel
+        Note that this doesn't actually do anything from the console
+    """
+    import discord.errors
+
+    if FROM_CONSOLE:
+        print("This command cannot be used from the console.")
+        return
+    # Limit amount to 100 for safety reasons
+    amt = int(match_result[0])
+    MAX_AMT = 100
+    amt = MAX_AMT if amt > MAX_AMT else amt
+
+    try:
+        await client.purge_from(message.channel, limit=amt + 1) # we add one to remove this message that was typed
+        await client.send_message(message.channel, "Removed {} messages".format(amt))
+    except discord.errors.Forbidden:
+        await client.send_message(message.channel, "I do not have the privileges to do that on this server or channel")
