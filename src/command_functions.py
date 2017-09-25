@@ -11,6 +11,7 @@ Each function must be asynchronous and have the following Args:
 """
 import src.user.permissions as permissions
 import src.file_functions as file_functions
+import random
 
 async def help(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The help command, returns the list of commands
@@ -111,3 +112,19 @@ async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False
         await client.send_message(message.channel, "Removed {} messages".format(amt))
     except discord.errors.Forbidden:
         await client.send_message(message.channel, "I do not have the privileges to do that on this server or channel")
+
+async def random_number(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """Generates a random number between 1 and 'number'"""
+    NUM_MIN = 0
+    NUM_MAX = int(match_result[0])
+    reply = ''
+    try:
+        rand_number = random.randint(NUM_MIN, NUM_MAX)
+        reply = "The random number is {}".format(rand_number)
+    except ValueError:
+        reply = "Invalid range, must be at least 0"
+
+    if FROM_CONSOLE:
+        print(reply)
+    else:
+        await client.send_message(message.channel, reply)
