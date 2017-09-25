@@ -1,0 +1,1 @@
+C_PREFIX = '$' # The prefix for all commands

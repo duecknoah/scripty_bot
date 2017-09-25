@@ -24,15 +24,19 @@ def keyword_function_user_reference(string):
 
     Returns None if not a match
     Returns the user id found if a match
-    An example match would be:
+    An example matchs would be:
         <@782311255082572245>
+        782311255082572245
     """
-    if (string.startswith('<@')
-            and string.endswith('>')
-            and len(string) == 21):
-        user_id = string[2:-1]
-        return user_id
-    return None
+    if string.startswith('<@') and string.endswith('>'):
+        string = string[2:-1]
+    if len(string) != 18:
+        return None
+    try:
+        int(string)
+        return string
+    except ValueError:
+        return None
 
 class CommandKeywords(Enum):
     """A keyword in a command that represents a special match in the string
@@ -81,13 +85,17 @@ class Command(object):
                         command
         desc (str) -- the description of the command
         minimum_permission -- the minimum permission needed to execute this command
+        function (function) -- a reference to the function
+                                to run when the command is called, None by default
     """
 
     def __init__(self, name, desc='No description provided',
-                 minimum_permission=PermissionLevel.DEFAULT):
+                 minimum_permission=PermissionLevel.DEFAULT,
+                 function=None):
         self.name = name.strip()
         self.desc = desc.strip()
         self.minimum_permission = minimum_permission
+        self.function = function
 
     def get_help(self):
         """ Returns the name and description of the command """
@@ -172,40 +180,7 @@ class Command(object):
         # Denied permission level, so it does not match the command requirements
         return None
 
-class DefaultCommands(object):
-    ################# Default Command Creation #################
-    HELP = Command('help', 'lists the available commands for the user',
-                   PermissionLevel.DEFAULT)
-
-    TEST = Command('test', 'get a reply back, used for testing...',
-                   PermissionLevel.DEFAULT)
-
-    PERMISSION_CHECK = Command('permission',
-                               'gets the permission level of the user',
-                               PermissionLevel.DEFAULT)
-
-    LOGOUT_BOT = Command('logout', 'shuts down the bot', PermissionLevel.SUPERUSER)
-
-    SET_PERM_TO_SUPERUSER = Command('superuser {}'.format(
-        get_keyword_string_of(CommandKeywords.USER_REFERENCE)),
-                                    'sets the permission level of \'user\' to superuser',
-                                    PermissionLevel.SUPERUSER)
-
-    SET_PERM_TO_USER = Command('user {}'.format(
-        get_keyword_string_of(CommandKeywords.USER_REFERENCE)),
-                               'sets the permission level of \'user\' to user',
-                               PermissionLevel.SUPERUSER)
-
-    SET_PERM_TO_DEFAULT = Command('default {}'.format(
-        get_keyword_string_of(CommandKeywords.USER_REFERENCE)),
-                                  'sets the permission level of \'user\' to to default',
-                                  PermissionLevel.SUPERUSER)
-
-command_list = [
-    DefaultCommands.HELP, DefaultCommands.TEST, DefaultCommands.PERMISSION_CHECK,
-    DefaultCommands.LOGOUT_BOT, DefaultCommands.SET_PERM_TO_SUPERUSER,
-    DefaultCommands.SET_PERM_TO_USER, DefaultCommands.SET_PERM_TO_DEFAULT
-    ]
+command_list = []
 
 def get_permitted_commands_for(permission_level):
     """ Returns a list of permitted commands for the specified
