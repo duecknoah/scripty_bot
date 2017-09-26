@@ -48,15 +48,21 @@ def init():
                                   'Removes \'number\' amount of messages from this channel (max 100)',
                                   PermissionLevel.SUPERUSER,
                                   command_functions.purge)
+
     RANDOM_NUMBER = Command('random {}'.format(
         get_keyword_string_of(CommandKeywords.NUMBER)),
                                   'Gets a random number between 0 and \'number\'',
                                   PermissionLevel.DEFAULT,
                                   command_functions.random_number)
+
+    RANDOM_NUMBER_FACT = Command('fact', 'Gets random number facts',
+                                 PermissionLevel.DEFAULT,
+                                 command_functions.random_fact)
+
     # Add these commands to the command list
     command_list.extend((
         HELP, TEST, PERMISSION_CHECK,
         LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
         SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
-        PURGE, RANDOM_NUMBER
+        PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT
     ))

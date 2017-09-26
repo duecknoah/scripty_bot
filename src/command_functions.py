@@ -128,3 +128,22 @@ async def random_number(client, message, match_result, as_permission, FROM_CONSO
         print(reply)
     else:
         await client.send_message(message.channel, reply)
+
+async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """Gets a random fact about a number
+
+    To get the random facts, I used numbersapi.com which makes it easy
+    to request a random fact, as it responds in plain text the random fact.
+    """
+    import urllib.request
+    import html
+
+    response = urllib.request.urlopen('http://numbersapi.com/random')
+    response_as_text = str(response.read())
+    response_as_text = response_as_text[2:-1] # Remove extra characters
+    fact = html.unescape(response_as_text)
+
+    if FROM_CONSOLE:
+        print(fact)
+    else:
+        await client.send_message(message.channel, fact)
