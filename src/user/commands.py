@@ -132,6 +132,9 @@ class Command(object):
                         The name can also contain CommandKeywords to identify
                         what type of arguments need to be provided to execute the
                         command
+        usage (str) -- similar to the name of the command, but more readable for
+                        the end user to understand. This is shown beside the description
+                        when the get_help() or get_help_decorated() function is run
         desc (str) -- the description of the command
         minimum_permission -- the minimum permission needed to execute this command
         function (function) -- a reference to the function
@@ -140,19 +143,23 @@ class Command(object):
 
     def __init__(self, name, desc='No description provided',
                  minimum_permission=PermissionLevel.DEFAULT,
-                 function=None):
+                 function=None, usage=None):
         self.name = name.strip()
         self.desc = desc.strip()
         self.minimum_permission = minimum_permission
         self.function = function
+        if usage == None:
+            self.usage = name
+        else:
+            self.usage = usage.strip()
 
     def get_help(self):
         """ Returns the name and description of the command """
-        return "{}: {}".format(self.name, self.desc)
+        return "{}: {}".format(self.usage, self.desc)
 
     def get_help_decorated(self):
         """ Same as get_help(), but adds text decoration to be used in discord """
-        return "`{}`: {}".format(self.name, self.desc)
+        return "`{}` {}".format(self.usage, self.desc)
 
     @staticmethod
     def get_words_until_delimiter(string):

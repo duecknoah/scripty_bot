@@ -60,7 +60,8 @@ CHOOSE = Command('choose {}'.format(
     get_keyword_string_of(CommandKeywords.OPTIONS)),
     'Chooses a random option out of the options given',
     PermissionLevel.DEFAULT,
-    command_functions.choose)
+    command_functions.choose,
+    'choose <option 1> | <option 2> | ... ')
 
 EIGHT_BALL = Command('8ball',
                      'Attempts to give you the best advice',
