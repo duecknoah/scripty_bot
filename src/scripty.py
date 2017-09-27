@@ -18,7 +18,6 @@ import logging
 from src.file import files
 import src.user.permissions as permissions
 import src.user.commands as commands
-import src.default_commands as default_commands
 import src.file_functions as file_functions
 from src import C_PREFIX
 
@@ -26,7 +25,6 @@ from src import C_PREFIX
 client = discord.Client()
 logging.basicConfig(level=logging.INFO) # Log discord debug information
 TOKEN = files.properties_file.get_data()['token'] # the token for the bot
-default_commands.init() # intialize default commands
 
 async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in

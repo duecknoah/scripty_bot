@@ -50,6 +50,20 @@ def keyword_function_number(string):
     except ValueError:
         return None
 
+def keyword_function_passthrough(string):
+    """Used as a way to simply return the string back
+    This is useful if you want to just pass what the user
+    typed where that command is and don't want to do any operations on it
+    """
+    return string
+
+class KeywordCount(Enum):
+    """Used to represent if a command keyword will
+    include a single or multiple words
+    """
+    SINGLE_WORD = 0
+    MULTIPLE_WORDS = 1
+
 class CommandKeywords(Enum):
     """A keyword in a command that represents a special match in the string
 
@@ -67,9 +81,12 @@ class CommandKeywords(Enum):
     Each CommandKeyword is a list in which holds:
         index[0]: holds the keyword_string
         index[1]: holds the keyword function
+        index[2]: tells if this functions will include multiple words,
+                  separated by the '|' delimiter or end of string
     """
-    USER_REFERENCE = ('<user>', keyword_function_user_reference)
-    NUMBER = ('<number>', keyword_function_number)
+    USER_REFERENCE = ('<user>', keyword_function_user_reference, KeywordCount.SINGLE_WORD)
+    NUMBER = ('<number>', keyword_function_number, KeywordCount.SINGLE_WORD)
+    STRING = ('<string>', keyword_function_passthrough, KeywordCount.MULTIPLE_WORDS)
 
 def get_keyword_string_of(keyword):
     """Gets the keyword string of the keyword"""
@@ -78,6 +95,10 @@ def get_keyword_string_of(keyword):
 def get_keyword_function_of(keyword):
     """Gets the keyword function of the keyword"""
     return keyword.value[1]
+
+def get_keyword_count_of(keyword):
+    """Gets the keyword count of the keyword"""
+    return keyword.value[2]
 
 def matches_keyword_function(string, command_keyword):
     """Checks if the given string matches the given CommandKeyword function
@@ -118,6 +139,19 @@ class Command(object):
         """ Same as get_help(), but adds text decoration to be used in discord """
         return "`{}`: {}".format(self.name, self.desc)
 
+    @staticmethod
+    def get_words_until_delimiter(string):
+        """Gets the string of words until the delimiter or end of string
+        Where:
+            <string> is a bunch of words going until the delimiter '|'
+            | - the delimiter
+            The delimiter is also the end of the function
+        """
+
+        DELIMITER = '|'
+        STRING_CUT = string.partition(DELIMITER)[0]
+        return STRING_CUT.strip()
+
     def matches(self, string, permission_level):
         """ Checks if the given string matches this commands requirements
 
@@ -150,14 +184,16 @@ class Command(object):
         command_name_as_tuple = tuple(self.name.split()) # the command's name we want to match to
         string_as_tuple = tuple(string.split())
         results = []
-
-        # The amount of words must be the same as the command requirements
-        if len(command_name_as_tuple) != len(string_as_tuple):
-            return None
+        string_word_offset = 0 # Used if string command is used
 
         # Go through word by word comparing the string to the command name
         for i in range(len(command_name_as_tuple)): # pylint: disable=consider-using-enumerate
-            string_word = string_as_tuple[i]
+            # If we got to a point where the index in the string is out of
+            # bounds, count this as a mismatch, return None
+            if len(string_as_tuple) - 1 < i + string_word_offset:
+                return None
+
+            string_word = string_as_tuple[i + string_word_offset]
             command_word = command_name_as_tuple[i]
             keyword_match = False
 
@@ -167,7 +203,20 @@ class Command(object):
                 # specific to that command keyword
                 if command_word == get_keyword_string_of(keyword):
                     match_function = get_keyword_function_of(keyword)
-                    match_result = match_function(string_word)
+
+                    # Do operations on multiple words if the command keyword wants it
+                    if get_keyword_count_of(keyword) == KeywordCount.MULTIPLE_WORDS:
+                        # Get the entire string after this point until the end or delimiter '|'
+                        string_as_tuple_after = string_as_tuple[i + string_word_offset:]
+                        string_words = Command.get_words_until_delimiter(' '.join(string_as_tuple_after))
+                        match_result = match_function(string_words)
+
+                        # Then since we operated on multiple words, skip ahead to the point
+                        # Where the string_word lines up with the command arguments/keywords
+                        total_words_to_skip = match_result.count(' ') + 1
+                        string_word_offset += total_words_to_skip
+                    else:
+                        match_result = match_function(string_word)
                     """ If this word does not match the command keyword's criteria,
                     then this whole command doesn't match the criteria
                     """

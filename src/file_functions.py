@@ -1,21 +1,22 @@
+""" Functions for all higher level file operations"""
 import src.user.permissions as permissions
 import src.file.files as files
 
-def id_to_user(client, id):
+def id_to_user(client, user_id):
     """ Converts the given id to a user, returning None if that user couldn't be found
     :returns user or None
     """
     for user in client.get_all_members():
-        if user.id == id:
+        if user.id == user_id:
             return user
     return None
 
 def get_user_permission_level(user_id):
     """Returns the permission level of the user"""
     user_perms_list = files.users_file.get_data()
-    for p in user_perms_list:
-        if user_id in user_perms_list[p]:
-            return permissions.get_permission_of_label(p[:-1])
+    for perm in user_perms_list:
+        if user_id in user_perms_list[perm]:
+            return permissions.get_permission_of_label(perm[:-1])
     return permissions.PermissionLevel.DEFAULT
 
 def set_user_permission(user_id, client, permission):
@@ -52,9 +53,9 @@ def set_user_permission(user_id, client, permission):
     # we don't want the user to have multiple permission levels
     # in the users file.
     if current_permission != permissions.PermissionLevel.DEFAULT:
-        keyInFile = permissions.get_label_of_permission(current_permission) + 's'
-        if user_id in files.users_file.get_data()[keyInFile]:
-            files.users_file.get_data()[keyInFile].remove(user_id)
+        key_in_file = permissions.get_label_of_permission(current_permission) + 's'
+        if user_id in files.users_file.get_data()[key_in_file]:
+            files.users_file.get_data()[key_in_file].remove(user_id)
 
     # Set the permission of the user
     # Note that we do not add users with the default permission to the users file.
