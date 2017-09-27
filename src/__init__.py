@@ -56,10 +56,17 @@ RANDOM_NUMBER_FACT = Command('fact', 'Gets random number facts',
                              PermissionLevel.DEFAULT,
                              command_functions.random_fact)
 
+CHOOSE = Command('choose {}'.format(
+    get_keyword_string_of(CommandKeywords.OPTIONS)),
+    'Chooses a random option out of the options given',
+    PermissionLevel.DEFAULT,
+    command_functions.choose)
+
 # Add these commands to the command list
 command_list.extend((
     HELP, TEST, PERMISSION_CHECK,
     LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
     SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
-    PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT
+    PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT,
+    CHOOSE
 ))

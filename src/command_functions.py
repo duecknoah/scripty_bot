@@ -147,3 +147,14 @@ async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE
         print(fact)
     else:
         await client.send_message(message.channel, fact)
+
+async def choose(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """Chooses one of the options out of the options given"""
+    options = match_result[0]
+    index_chosen = random.randint(0, len(options) - 1)
+    reply = 'The option chosen is: {}'.format(options[index_chosen])
+
+    if FROM_CONSOLE:
+        print(reply)
+    else:
+        await client.send_message(message.channel, reply)
