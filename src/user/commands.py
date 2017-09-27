@@ -123,6 +123,11 @@ def matches_keyword_function(string, command_keyword):
     keyword_function = get_keyword_function_of(command_keyword)
     return keyword_function(string)
 
+class CommandType(Enum):
+    """The type of commands"""
+    STANDARD = 'Standard'
+    MODERATION = 'Moderation'
+    CUSTOM = 'Custom' # User made
 
 class Command(object):
     """The object for creating user commands
@@ -132,18 +137,20 @@ class Command(object):
                         The name can also contain CommandKeywords to identify
                         what type of arguments need to be provided to execute the
                         command
-        usage (str) -- similar to the name of the command, but more readable for
-                        the end user to understand. This is shown beside the description
-                        when the get_help() or get_help_decorated() function is run
         desc (str) -- the description of the command
+        type (CommandType) -- the type of command
         minimum_permission -- the minimum permission needed to execute this command
         function (function) -- a reference to the function
                                 to run when the command is called, None by default
+        usage (str) -- similar to the name of the command, but more readable for
+                the end user to understand. This is shown beside the description
+                when the get_help() or get_help_decorated() function is run
     """
 
     def __init__(self, name, desc='No description provided',
-                 minimum_permission=PermissionLevel.DEFAULT,
+                 type=CommandType.STANDARD, minimum_permission=PermissionLevel.DEFAULT,
                  function=None, usage=None):
+        self.type = type
         self.name = name.strip()
         self.desc = desc.strip()
         self.minimum_permission = minimum_permission
