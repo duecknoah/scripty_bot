@@ -151,8 +151,15 @@ async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE
 async def choose(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Chooses one of the options out of the options given"""
     options = match_result[0]
-    index_chosen = random.randint(0, len(options) - 1)
-    reply = 'The option chosen is: {}'.format(options[index_chosen])
+    option_chosen = options[random.randint(0, len(options) - 1)]
+    possible_sentences = (
+        'The option chosen is {}',
+        'Obviously I\'d choose {}',
+        'Definitely {}',
+        'Of course {}'
+    )
+    sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
+    reply = sentence_chosen.format(option_chosen)
 
     if FROM_CONSOLE:
         print(reply)
