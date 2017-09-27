@@ -62,11 +62,16 @@ CHOOSE = Command('choose {}'.format(
     PermissionLevel.DEFAULT,
     command_functions.choose)
 
+EIGHT_BALL = Command('8ball',
+                     'Attempts to give you the best advice',
+                     PermissionLevel.DEFAULT,
+                     command_functions.eight_ball)
+
 # Add these commands to the command list
 command_list.extend((
     HELP, TEST, PERMISSION_CHECK,
     LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
     SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
     PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT,
-    CHOOSE
+    CHOOSE, EIGHT_BALL
 ))

@@ -165,3 +165,34 @@ async def choose(client, message, match_result, as_permission, FROM_CONSOLE=Fals
         print(reply)
     else:
         await client.send_message(message.channel, reply)
+
+async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """Returns a decision to any question"""
+    possible_sentences = (
+        'It is certain',
+        'It is decidedly so',
+        'Without a doubt',
+        'Yes definitely',
+        'You may rely on it',
+        'As I see it, yes',
+        'Most likely',
+        'Outlook good',
+        'Yes',
+        'Signs point to yes',
+        'Reply hazy try again',
+        'Ask again later',
+        'Better not tell you now',
+        'Cannot predict now',
+        'Concentrate and ask again',
+        'Don\'t count on it',
+        'My reply is no',
+        'My sources say no',
+        'Outlook not so good',
+        'Very doubtful'
+    )
+    sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
+
+    if FROM_CONSOLE:
+        print(sentence_chosen)
+    else:
+        await client.send_message(message.channel, sentence_chosen)
