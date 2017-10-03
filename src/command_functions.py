@@ -10,6 +10,7 @@ Each function must be asynchronous and have the following Args:
     FROM_CONSOLE (bool) -- was this message sent through the console?
 """
 import src.user.permissions as permissions
+import src.file.files as files
 import src.file_functions as file_functions
 import random
 
@@ -33,13 +34,6 @@ async def help(client, message, match_result, as_permission, FROM_CONSOLE=False)
             commands_str_tidy += i.get_help_decorated() + '\n'
         await client.send_message(message.channel, "**Available commands for {}:**\n{}\n{}"
                             .format(message.author.name, commands_str_tidy, note))
-
-async def test(client, message, match_result, as_permission, FROM_CONSOLE=False):
-    """A debug command"""
-    if FROM_CONSOLE:
-        print("It works!")
-    else:
-        await client.send_message(message.channel, "It works!")
 
 async def permission_check(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Tells the user their permission level"""
@@ -88,10 +82,7 @@ async def __set_perm_to(permission, client, message, match_result, as_permission
 
     # Set the users permission
     reply_message = file_functions.set_user_permission(user_to_add_id, client, permission)
-    if FROM_CONSOLE:
-        print(reply_message)
-    else:
-        await client.send_message(message.channel, reply_message)
+    await reply_simple(client, reply_message, None if FROM_CONSOLE else message.channel)
 
 async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """ removes n amount of messages from the messages channel
@@ -124,10 +115,7 @@ async def random_number(client, message, match_result, as_permission, FROM_CONSO
     except ValueError:
         reply = "Invalid range, must be at least 0"
 
-    if FROM_CONSOLE:
-        print(reply)
-    else:
-        await client.send_message(message.channel, reply)
+    await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
 
 async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Gets a random fact about a number
@@ -143,10 +131,7 @@ async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE
     response_as_text = response_as_text[2:-1] # Remove extra characters
     fact = html.unescape(response_as_text)
 
-    if FROM_CONSOLE:
-        print(fact)
-    else:
-        await client.send_message(message.channel, fact)
+    await reply_simple(client, fact, None if FROM_CONSOLE else message.channel)
 
 async def choose(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Chooses one of the options out of the options given"""
@@ -161,10 +146,7 @@ async def choose(client, message, match_result, as_permission, FROM_CONSOLE=Fals
     sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
     reply = sentence_chosen.format(option_chosen)
 
-    if FROM_CONSOLE:
-        print(reply)
-    else:
-        await client.send_message(message.channel, reply)
+    await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
 
 async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Returns a decision to any question"""
@@ -192,7 +174,45 @@ async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=
     )
     sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
 
-    if FROM_CONSOLE:
-        print(sentence_chosen)
+    await reply_simple(client, sentence_chosen, None if FROM_CONSOLE else message.channel)
+
+async def command_add(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """Creates a custom command"""
+    from src.user.commands import command_list, CustomCommand, ImproperNameError
+    reply = ''
+    command_exists = False
+
+    try:
+        new_command = CustomCommand(match_result[0], match_result[1], custom_command)
+
+        # Prevent having a command with the same
+        # first word as another that already exists, as
+        # custom command are not allowed to have spaces. So
+        # we only need to compare the first word of each one
+        for current_command in command_list:
+            if new_command.name == current_command.name.partition(' ')[0]:
+                reply = 'Interference with the existing command: {}'.format(current_command.usage)
+                command_exists = True
+                break
+
+        if not command_exists:
+            command_list.append(new_command)
+            files.commands_file.get_data()[new_command.name] = new_command.response
+            reply = 'Added \'{}\' to the list of commands'.format(new_command.name)
+
+    except ImproperNameError:
+        reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
+
+    await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
+
+async def custom_command(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    """The command run for all custom commands,
+    simply just passing a message through to the user
+    """
+    await reply_simple(client, match_result, None if FROM_CONSOLE else message.channel)
+
+async def reply_simple(client, message, channel=None):
+    if channel is None:
+        print(message)
     else:
-        await client.send_message(message.channel, sentence_chosen)
+        await client.send_message(channel, message)

@@ -102,6 +102,7 @@ class CommandKeywords(Enum):
     NUMBER = ('<number>', keyword_function_number, KeywordCount.SINGLE_WORD)
     STRING = ('<string>', keyword_function_passthrough, KeywordCount.MULTIPLE_WORDS)
     OPTIONS = ('<options>', keyword_function_options, KeywordCount.ALL_WORDS_AFTER)
+    WORD = ('<word>', keyword_function_passthrough, KeywordCount.SINGLE_WORD)
 
 def get_keyword_string_of(keyword):
     """Gets the keyword string of the keyword"""
@@ -279,6 +280,49 @@ class Command(object):
             # The string and permission fully matches the command criteria, return the results!
             return tuple(results)
         # Denied permission level, so it does not match the command requirements
+        return None
+
+class ImproperNameError (Exception):
+    """An error when the naming of a string
+    is not matching up with what is required.
+    """
+    def __init__(self, arg):
+        self.strerror = arg
+        self.args = {arg}
+
+class CustomCommand (Command):
+    """A custom command is more restricted than the general Command
+
+    This is the type of command a user can create using the
+    $command add ... command
+
+    Unlike the Command class, this is restricted to:
+        - one word for its name
+        - no CommandKeywords to run special functions
+        - A single response (str) if the Command matches
+
+    New Variables:
+        response (str) -- the string to send back if the command was matched
+    """
+    def __init__(self, name, response, function):
+        Command.__init__(self, name, 'A custom command',
+                         CommandType.CUSTOM, PermissionLevel.DEFAULT,
+                         function)
+        if self.name.find(' ') != -1:
+            raise ImproperNameError('Name must not contain spaces!')
+
+        self.response = response
+
+    def matches(self, string, permission_level):
+        """Checks if the string exactly matches the name of this Command
+
+        Returns None if not
+        Returns response as the match result if so
+        """
+        string = string.strip()
+
+        if (string == self.name):
+            return self.response
         return None
 
 command_list = []

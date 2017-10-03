@@ -12,11 +12,6 @@ HELP = Command('help', 'lists the available commands for the user',
                PermissionLevel.DEFAULT,
                command_functions.help)
 
-TEST = Command('test', 'get a reply back, used for testing...',
-               CommandType.STANDARD,
-               PermissionLevel.DEFAULT,
-               command_functions.test)
-
 PERMISSION_CHECK = Command('permission',
                            'gets the permission level of the user',
                            CommandType.MODERATION,
@@ -81,11 +76,20 @@ EIGHT_BALL = Command('8ball',
                      PermissionLevel.DEFAULT,
                      command_functions.eight_ball)
 
+COMMAND_ADD = Command('command add {} {}'.format(
+        get_keyword_string_of(CommandKeywords.WORD),
+        get_keyword_string_of(CommandKeywords.STRING)),
+    'Creates a custom command',
+    CommandType.STANDARD,
+    PermissionLevel.DEFAULT,
+    command_functions.command_add,
+    'command add <command name> | <command>')
+
 # Add these commands to the command list
 command_list.extend((
-    HELP, TEST, PERMISSION_CHECK,
+    HELP, PERMISSION_CHECK,
     LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
     SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
     PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT,
-    CHOOSE, EIGHT_BALL
+    CHOOSE, EIGHT_BALL, COMMAND_ADD
 ))

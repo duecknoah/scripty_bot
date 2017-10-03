@@ -15,7 +15,7 @@ class JSONDataFile:
         properties = JSONDataFile('properties.json')
     """
 
-    def __init__(self, file, default_data=None):
+    def __init__(self, file, default_data={}):
         """Initialize by loading the file data and storing it within data
 
             :param file: The relative path to the json file
