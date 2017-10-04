@@ -3,6 +3,7 @@
 /data/properties.json
 /data/scripts.json
 /data/users.json
+/data/commands.json
 
 # generated python files
 *.pyc
