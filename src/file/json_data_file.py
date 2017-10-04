@@ -4,8 +4,9 @@ For All further explaination see the class docstring
 
 """
 import json
-import threading # used to attempt to write to disk every 5 seconds if data was changed
-import copy # allows for deep copying of dictionary data used in json
+import threading  # used to attempt to write to disk every 5 seconds if data was changed
+import copy  # allows for deep copying of dictionary data used in json
+
 
 class JSONDataFile:
     """Allows simple loading, getting, and setting of an individual json data file.
@@ -23,7 +24,8 @@ class JSONDataFile:
         """
         self.__file = file
         self.__data = None  # The current json data
-        self.__data_last = None  # A copy of the json (__data) that was last saved to disk
+        # A copy of the json (__data) that was last saved to disk
+        self.__data_last = None
         self.__data_was_changed = False  # was the data changed since last save to disk?
         try:
             json_data_file = open(file)
@@ -40,7 +42,7 @@ class JSONDataFile:
             self.__write_data_to_disk()
         print("{} loaded ...".format(file), end='')
         self.__start_auto_save_timer()
-        print() # print new line
+        print()  # print new line
 
     def __start_auto_save_timer(self):
         """ Automatically attempt to write the data (__data) to disk (__file) in 5 seconds """
@@ -58,7 +60,7 @@ class JSONDataFile:
             # Set data was changed to false as the data in memory
             # is the same as in the file now
             self.__data_was_changed = False
-            self.__data_last = copy.deepcopy(self.__data) # copy
+            self.__data_last = copy.deepcopy(self.__data)  # copy
         self.__start_auto_save_timer()
 
     def set_data(self, data):

@@ -14,6 +14,7 @@ import src.file.files as files
 import src.file_functions as file_functions
 import random
 
+
 async def help(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The help command, returns the list of commands
     available to the user who sent the message
@@ -33,7 +34,8 @@ async def help(client, message, match_result, as_permission, FROM_CONSOLE=False)
         for i in commands_list:
             commands_str_tidy += i.get_help_decorated() + '\n'
         await client.send_message(message.channel, "**Available commands for {}:**\n{}\n{}"
-                            .format(message.author.name, commands_str_tidy, note))
+                                  .format(message.author.name, commands_str_tidy, note))
+
 
 async def permission_check(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Tells the user their permission level"""
@@ -44,6 +46,7 @@ async def permission_check(client, message, match_result, as_permission, FROM_CO
                                   .format(message.author.name,
                                           permissions.get_label_of_permission(
                                               as_permission)))
+
 
 async def logout_bot(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Logs the bot out, and saves any other data"""
@@ -58,17 +61,21 @@ async def logout_bot(client, message, match_result, as_permission, FROM_CONSOLE=
     files.close()
     os._exit(0)
 
+
 async def set_perm_to_superuser(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Sets the permission level of 'user' to superuser"""
     await __set_perm_to(permissions.PermissionLevel.SUPERUSER, client, message, match_result, as_permission, FROM_CONSOLE)
+
 
 async def set_perm_to_user(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Sets the permissions for the specified user to a superuser"""
     await __set_perm_to(permissions.PermissionLevel.USER, client, message, match_result, as_permission, FROM_CONSOLE)
 
+
 async def set_perm_to_default(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Sets the permissions for the specified user to a default"""
     await __set_perm_to(permissions.PermissionLevel.DEFAULT, client, message, match_result, as_permission, FROM_CONSOLE)
+
 
 async def __set_perm_to(permission, client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Sets the permissions for the specified user to 'permission'
@@ -81,8 +88,10 @@ async def __set_perm_to(permission, client, message, match_result, as_permission
     user_to_add_id = match_result[0]
 
     # Set the users permission
-    reply_message = file_functions.set_user_permission(user_to_add_id, client, permission)
+    reply_message = file_functions.set_user_permission(
+        user_to_add_id, client, permission)
     await reply_simple(client, reply_message, None if FROM_CONSOLE else message.channel)
+
 
 async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """ removes n amount of messages from the messages channel
@@ -99,10 +108,12 @@ async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False
     amt = MAX_AMT if amt > MAX_AMT else amt
 
     try:
-        await client.purge_from(message.channel, limit=amt + 1) # we add one to remove this message that was typed
+        # we add one to remove this message that was typed
+        await client.purge_from(message.channel, limit=amt + 1)
         await client.send_message(message.channel, "Removed {} messages".format(amt))
     except discord.errors.Forbidden:
         await client.send_message(message.channel, "I do not have the privileges to do that on this server or channel")
+
 
 async def random_number(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Generates a random number between 1 and 'number'"""
@@ -117,6 +128,7 @@ async def random_number(client, message, match_result, as_permission, FROM_CONSO
 
     await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
 
+
 async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Gets a random fact about a number
 
@@ -128,10 +140,11 @@ async def random_fact(client, message, match_result, as_permission, FROM_CONSOLE
 
     response = urllib.request.urlopen('http://numbersapi.com/random')
     response_as_text = str(response.read())
-    response_as_text = response_as_text[2:-1] # Remove extra characters
+    response_as_text = response_as_text[2:-1]  # Remove extra characters
     fact = html.unescape(response_as_text)
 
     await reply_simple(client, fact, None if FROM_CONSOLE else message.channel)
+
 
 async def choose(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Chooses one of the options out of the options given"""
@@ -143,10 +156,12 @@ async def choose(client, message, match_result, as_permission, FROM_CONSOLE=Fals
         'Definitely {}',
         'Of course {}'
     )
-    sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
+    sentence_chosen = possible_sentences[random.randint(
+        0, len(possible_sentences) - 1)]
     reply = sentence_chosen.format(option_chosen)
 
     await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
+
 
 async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Returns a decision to any question"""
@@ -172,44 +187,27 @@ async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=
         'Outlook not so good',
         'Very doubtful'
     )
-    sentence_chosen = possible_sentences[random.randint(0, len(possible_sentences) - 1)]
+    sentence_chosen = possible_sentences[random.randint(
+        0, len(possible_sentences) - 1)]
 
     await reply_simple(client, sentence_chosen, None if FROM_CONSOLE else message.channel)
 
+
 async def command_add(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Creates a custom command"""
-    from src.user.commands import command_list, CustomCommand, ImproperNameError
-    reply = ''
-    command_exists = False
-
-    try:
-        new_command = CustomCommand(match_result[0], match_result[1], custom_command)
-
-        # Prevent having a command with the same
-        # first word as another that already exists, as
-        # custom command are not allowed to have spaces. So
-        # we only need to compare the first word of each one
-        for current_command in command_list:
-            if new_command.name == current_command.name.partition(' ')[0]:
-                reply = 'Interference with the existing command: {}'.format(current_command.usage)
-                command_exists = True
-                break
-
-        if not command_exists:
-            command_list.append(new_command)
-            files.commands_file.get_data()[new_command.name] = new_command.response
-            reply = 'Added \'{}\' to the list of commands'.format(new_command.name)
-
-    except ImproperNameError:
-        reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
+    reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
+    reply = 'Added \'{}\' to the list of commands'.format(
+        new_command.name)
 
     await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
+
 
 async def custom_command(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The command run for all custom commands,
     simply just passing a message through to the user
     """
     await reply_simple(client, match_result, None if FROM_CONSOLE else message.channel)
+
 
 async def reply_simple(client, message, channel=None):
     if channel is None:

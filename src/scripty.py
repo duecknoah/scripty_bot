@@ -23,8 +23,9 @@ from src import C_PREFIX
 
 # Initialization stuff
 client = discord.Client()
-logging.basicConfig(level=logging.INFO) # Log discord debug information
-TOKEN = files.properties_file.get_data()['token'] # the token for the bot
+logging.basicConfig(level=logging.INFO)  # Log discord debug information
+TOKEN = files.properties_file.get_data()['token']  # the token for the bot
+
 
 async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in
@@ -40,13 +41,13 @@ async def run_command(message, FROM_CONSOLE=False):
     # Get permission level and string of message
     permission_level = permissions.PermissionLevel.DEFAULT
     message_string = ''
-    message_starting_index = len(C_PREFIX)
 
     if FROM_CONSOLE:
         permission_level = permissions.PermissionLevel.SUPERUSER
         message_string = message
     else:
-        permission_level = file_functions.get_user_permission_level(message.author.id)
+        permission_level = file_functions.get_user_permission_level(
+            message.author.id)
         message_string = message.content
 
     # If the message doesn't start with the prefix, return
@@ -56,7 +57,7 @@ async def run_command(message, FROM_CONSOLE=False):
     # Remove the prefix as we don't want it in our way now
     message_string = message_string[1:]
 
-    ############################## Default Commands ##############################
+    ############################## Default Commands ##########################
     # Loop through all of the commands in the commands list
     for command in commands.command_list:
         # Check if the message typed matches a commands arguments and
@@ -69,6 +70,8 @@ async def run_command(message, FROM_CONSOLE=False):
 '''This is the console that allows the owner who is running the server to always have permission
 as a superuser.
 '''
+
+
 async def console():
     while True:
         text = await aioconsole.ainput('$ ')
@@ -76,6 +79,7 @@ async def console():
         if command == '$':
             continue
         await run_command(command, FROM_CONSOLE=True)
+
 
 @client.event
 async def on_ready():
@@ -92,12 +96,14 @@ async def on_ready():
     files.properties_file.set_data(p_json)
     # Make user add self as a superuser
     if len(files.users_file.get_data()['superusers']) == 0:
-        first_superuser = input("Add yourself as a superuser (input user id): ")
+        first_superuser = input(
+            "Add yourself as a superuser (input user id): ")
         users = files.users_file.get_data()
         users['superusers'].append(first_superuser)
-    isConnected = True
-    # Enable console to run for host to type commands through while bot is running
+    # Enable console to run for host to type commands through while bot is
+    # running
     await console()
+
 
 @client.event
 async def on_message(message):
@@ -112,7 +118,7 @@ if not TOKEN:
     TOKEN = input("Enter the app bot user token: ")
 try:
     client.run(TOKEN)
-    #client.run(TOKEN)
+    # client.run(TOKEN)
 except discord.LoginFailure:
     print("Invalid token. "
           "Setup your bot and get its token at: "

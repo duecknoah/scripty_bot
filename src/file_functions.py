@@ -1,6 +1,8 @@
 """ Functions for all higher level file operations"""
 import src.user.permissions as permissions
 import src.file.files as files
+import src.user.commands as commands
+
 
 def id_to_user(client, user_id):
     """ Converts the given id to a user, returning None if that user couldn't be found
@@ -11,6 +13,7 @@ def id_to_user(client, user_id):
             return user
     return None
 
+
 def get_user_permission_level(user_id):
     """Returns the permission level of the user"""
     user_perms_list = files.users_file.get_data()
@@ -18,6 +21,7 @@ def get_user_permission_level(user_id):
         if user_id in user_perms_list[perm]:
             return permissions.get_permission_of_label(perm[:-1])
     return permissions.PermissionLevel.DEFAULT
+
 
 def set_user_permission(user_id, client, permission):
     """ Sets the user (id) to the desired permission level (permission).
@@ -31,38 +35,85 @@ def set_user_permission(user_id, client, permission):
     :returns str
     """
     user_to_add = id_to_user(client, user_id)  # set when id is validated
-    user_is_valid = False # default
+    user_is_valid = False  # default
 
     # Validate that the user exists
-    if user_to_add != None:
+    if user_to_add is not None:
         user_is_valid = True
 
     if not user_is_valid:
         return "Invalid or non-existant user. ex. {} @exampleuser"\
             .format(permissions.get_label_of_permission(permission))
 
-    # Check if the users permission level already is what we are trying to set it to
+    # Check if the users permission level already is what we are trying to set
+    # it to
     current_permission = get_user_permission_level(user_id)
 
     if current_permission == permission:
-        return "{} is already a {}".format(user_to_add.name,
-                                           permissions.get_label_of_permission(permission))
+        return "{} is already a {}".format(
+            user_to_add.name, permissions.get_label_of_permission(permission))
 
     # Remove current permission if we are not currently just the default permission,
     # (the default permission users are not stored in the users file)
     # we don't want the user to have multiple permission levels
     # in the users file.
     if current_permission != permissions.PermissionLevel.DEFAULT:
-        key_in_file = permissions.get_label_of_permission(current_permission) + 's'
+        key_in_file = permissions.get_label_of_permission(
+            current_permission) + 's'
         if user_id in files.users_file.get_data()[key_in_file]:
             files.users_file.get_data()[key_in_file].remove(user_id)
 
     # Set the permission of the user
     # Note that we do not add users with the default permission to the users file.
-    # As the default permission means at least same permission as everyone on the server
+    # As the default permission means at least same permission as everyone on
+    # the server
     if permission != permissions.PermissionLevel.DEFAULT:
-        permission_save_name = permissions.get_label_of_permission(permission) + 's'
+        permission_save_name = permissions.get_label_of_permission(
+            permission) + 's'
         files.users_file.get_data()[permission_save_name].append(user_id)
     return "{} is now a {}".format(
         user_to_add.name,
         permissions.get_label_of_permission(permission))
+
+
+def add_command_to_commands_list(command):
+    """Adds the desired command to the command list
+
+    Returns True if successful
+    Returns False if that command already exists
+    Raises ImproperNameException if the command was given
+        an improper name, this only applies to custom commands
+
+    Note: Only custom commands will be added to the commands.json file
+    """
+    reply = ''
+    command_exists = False
+
+    # Prevent having a command with the same
+    # first word as another that already exists, as
+    # custom command are not allowed to have spaces. So
+    # we only need to compare the first word of each one
+    for current_command in commands.command_list:
+        if command.name == current_command.name.partition(' ')[0]:
+            return False
+
+    commands.command_list.append(command)
+    if command.type == commands.CommandType.CUSTOM:
+        files.commands_file.get_data()[
+            command.name] = command.response
+
+
+def get_custom_commands_from_file():
+    """Loads the commands in the commands file and
+    returns the list as customcommand objects
+    """
+    import src.command_functions as command_functions
+
+    loaded = []
+    for command_data in files.commands_file.get_data().items():
+        loaded.append(commands.CustomCommand(
+            command_data[0],
+            command_data[1],
+            command_functions.custom_command))
+
+    return loaded

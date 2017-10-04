@@ -15,6 +15,7 @@ commands_file = JSONDataFile("../data/commands.json")
 #   'squad': 'http://www.stuff.com/pic_of_squad.png'
 # }
 
+
 def close():
     """Closes all files"""
     properties_file.close()

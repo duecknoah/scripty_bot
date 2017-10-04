@@ -2,8 +2,10 @@
 from src.user.commands import Command, get_keyword_string_of, CommandKeywords, command_list, CommandType
 from src.user.permissions import PermissionLevel
 import src.command_functions as command_functions
+import src.file_functions as file_functions
+import src.file.files as files
 
-C_PREFIX = '$' # The prefix for all commands
+C_PREFIX = '$'  # The prefix for all commands
 
 ################# Default Command Creation #################
 # Initializes all default commands and puts them into the commands_list
@@ -77,8 +79,8 @@ EIGHT_BALL = Command('8ball',
                      command_functions.eight_ball)
 
 COMMAND_ADD = Command('command add {} {}'.format(
-        get_keyword_string_of(CommandKeywords.WORD),
-        get_keyword_string_of(CommandKeywords.STRING)),
+    get_keyword_string_of(CommandKeywords.WORD),
+    get_keyword_string_of(CommandKeywords.STRING)),
     'Creates a custom command',
     CommandType.STANDARD,
     PermissionLevel.DEFAULT,
@@ -91,5 +93,10 @@ command_list.extend((
     LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
     SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
     PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT,
-    CHOOSE, EIGHT_BALL, COMMAND_ADD
+    CHOOSE, EIGHT_BALL, COMMAND_ADD,
 ))
+
+# Custom commands
+CUSTOM_COMMANDS = file_functions.get_custom_commands_from_file()
+for c in CUSTOM_COMMANDS:
+    command_list.append(c)
