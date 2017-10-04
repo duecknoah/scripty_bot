@@ -75,40 +75,16 @@ def set_user_permission(user_id, client, permission):
         user_to_add.name,
         permissions.get_label_of_permission(permission))
 
+def save_custom_commands():
+    """Saves the custom commands to the commands file"""
+    for command in commands.command_list:
+        if command.type == commands.CommandType.CUSTOM:
+            files.commands_file.get_data()[
+                command.name] = command.response
 
-def add_command_to_commands_list(command):
-    """Adds the desired command to the command list
-
-    Returns True if successful
-    Returns False if that command already exists
-    Raises ImproperNameError if the command was given
-        an improper name, this only applies to custom commands
-
-    Note: Only custom commands will be added to the commands.json file
-    """
-    reply = ''
-    command_exists = False
-
-    # Prevent having a command with the same
-    # first word as another that already exists, as
-    # custom command are not allowed to have spaces. So
-    # we only need to compare the first word of each one
-    for current_command in commands.command_list:
-        if command.name == current_command.name.partition(' ')[0]:
-            return False
-
-    commands.command_list.append(command)
-    if command.type == commands.CommandType.CUSTOM:
-        files.commands_file.get_data()[
-            command.name] = command.response
-    # Re-order
-    commands.order_commands_by_type()
-    return True
-
-
-def get_custom_commands_from_file():
+def load_custom_commands():
     """Loads the commands in the commands file and
-    returns the list as customcommand objects
+    returns the list as CustomCommand objects
     """
     import src.command_functions as command_functions
 

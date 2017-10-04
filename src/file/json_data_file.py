@@ -1,6 +1,6 @@
 """ Allows simple loading, getting, and setting of an individual json data file.
 
-For All further explaination see the class docstring
+For All further explanation see the class docstring
 
 """
 import json

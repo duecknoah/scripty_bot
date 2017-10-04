@@ -399,3 +399,26 @@ def order_commands_by_type():
     for type in CommandType:
         for command in categorized_commands[type]:
             command_list.append(command)
+
+def add_command(command):
+    """Adds the desired command to the command list
+
+    Returns True if successful
+    Returns False if that command already exists
+    Raises ImproperNameError if the command was given
+        an improper name, this only applies to custom commands
+    """
+    import src.file_functions as file_functions
+
+    # Prevent having a command with the same
+    # first word as another that already exists, as
+    # custom command are not allowed to have spaces. So
+    # we only need to compare the first word of each one
+    for current_command in command_list:
+        if command.name == current_command.name.partition(' ')[0]:
+            return False
+
+    command_list.append(command)
+    # Re-order
+    order_commands_by_type()
+    return True

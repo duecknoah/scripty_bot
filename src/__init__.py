@@ -99,7 +99,7 @@ command_list.extend((
 ))
 
 # Custom commands
-CUSTOM_COMMANDS = file_functions.get_custom_commands_from_file()
+CUSTOM_COMMANDS = file_functions.load_custom_commands()
 for c in CUSTOM_COMMANDS:
     command_list.append(c)
 

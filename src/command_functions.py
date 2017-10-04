@@ -197,7 +197,7 @@ async def command_add(client, message, match_result, as_permission, FROM_CONSOLE
     reply = ''
 
     try:
-         success = file_functions.add_command_to_commands_list(
+         success = commands.add_command(
             commands.CustomCommand(
                 match_result[0],
                 match_result[1],
@@ -205,6 +205,7 @@ async def command_add(client, message, match_result, as_permission, FROM_CONSOLE
          if success:
              reply = 'Added \'{}\' to the list of commands'.format(
                  match_result[0])
+             file_functions.save_custom_commands()
          else:
              reply = 'A command with that name already exists!'
 
