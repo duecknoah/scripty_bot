@@ -81,7 +81,7 @@ def add_command_to_commands_list(command):
 
     Returns True if successful
     Returns False if that command already exists
-    Raises ImproperNameException if the command was given
+    Raises ImproperNameError if the command was given
         an improper name, this only applies to custom commands
 
     Note: Only custom commands will be added to the commands.json file
@@ -101,6 +101,9 @@ def add_command_to_commands_list(command):
     if command.type == commands.CommandType.CUSTOM:
         files.commands_file.get_data()[
             command.name] = command.response
+    # Re-order
+    commands.order_commands_by_type()
+    return True
 
 
 def get_custom_commands_from_file():

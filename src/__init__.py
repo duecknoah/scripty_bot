@@ -1,5 +1,7 @@
 """Constants and initialization"""
-from src.user.commands import Command, get_keyword_string_of, CommandKeywords, command_list, CommandType
+from src.user.commands import Command, get_keyword_string_of, \
+    CommandKeywords, command_list, \
+    CommandType, order_commands_by_type
 from src.user.permissions import PermissionLevel
 import src.command_functions as command_functions
 import src.file_functions as file_functions
@@ -100,3 +102,5 @@ command_list.extend((
 CUSTOM_COMMANDS = file_functions.get_custom_commands_from_file()
 for c in CUSTOM_COMMANDS:
     command_list.append(c)
+
+order_commands_by_type()

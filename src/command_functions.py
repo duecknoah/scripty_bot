@@ -20,17 +20,15 @@ async def help(client, message, match_result, as_permission, FROM_CONSOLE=False)
     available to the user who sent the message
     """
     import src.user.commands as commands
-    commands_list = None
     commands_str_tidy = ''
+    commands_list = commands.get_permitted_commands_for(as_permission)
+
     note = '*NOTE that all commands begin with \'$\'*'
     if FROM_CONSOLE:
-        commands_list = commands.get_permitted_commands_for(
-            permissions.PermissionLevel.SUPERUSER)
         for i in commands_list:
             commands_str_tidy += i.get_help() + '\n'
         print(commands_str_tidy)
     else:
-        commands_list = commands.get_permitted_commands_for(as_permission)
         for i in commands_list:
             commands_str_tidy += i.get_help_decorated() + '\n'
         await client.send_message(message.channel, "**Available commands for {}:**\n{}\n{}"
@@ -195,12 +193,25 @@ async def eight_ball(client, message, match_result, as_permission, FROM_CONSOLE=
 
 async def command_add(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """Creates a custom command"""
-    reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
-    reply = 'Added \'{}\' to the list of commands'.format(
-        new_command.name)
+    import src.user.commands as commands
+    reply = ''
+
+    try:
+         success = file_functions.add_command_to_commands_list(
+            commands.CustomCommand(
+                match_result[0],
+                match_result[1],
+                custom_command))
+         if success:
+             reply = 'Added \'{}\' to the list of commands'.format(
+                 match_result[0])
+         else:
+             reply = 'A command with that name already exists!'
+
+    except commands.ImproperNameError:
+        reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
 
     await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
-
 
 async def custom_command(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The command run for all custom commands,

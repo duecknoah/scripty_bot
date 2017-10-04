@@ -10,6 +10,7 @@ message matches the command correctly.
 from enum import Enum
 from src.user.permissions import PermissionLevel
 
+command_list = []
 ############################## Keyword Functions ##############################
 '''
 Every keyword function must match these criteria:
@@ -369,9 +370,6 @@ class CustomCommand (Command):
         return None
 
 
-command_list = []
-
-
 def get_permitted_commands_for(permission_level):
     """ Returns a list of permitted commands for the specified
     user based off their permissions
@@ -383,3 +381,21 @@ def get_permitted_commands_for(permission_level):
             continue
         commands_permitted.append(i)
     return commands_permitted
+
+def order_commands_by_type():
+    """Orders the command list by type"""
+    global command_list
+    categorized_commands = {}
+
+    for type in CommandType:
+        categorized_commands[type] = []
+
+    for command in command_list:
+        categorized_commands[command.type].append(command)
+
+    # Move categorized commands into the commands list
+    command_list = []
+
+    for type in CommandType:
+        for command in categorized_commands[type]:
+            command_list.append(command)
