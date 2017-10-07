@@ -10,7 +10,6 @@ Each function must be asynchronous and have the following Args:
     FROM_CONSOLE (bool) -- was this message sent through the console?
 """
 import src.user.permissions as permissions
-import src.file.files as files
 import src.file_functions as file_functions
 import random
 

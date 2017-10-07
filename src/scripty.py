@@ -23,9 +23,7 @@ from src import C_PREFIX
 
 # Initialization stuff
 client = discord.Client()
-logging.basicConfig(level=logging.INFO)  # Log discord debug information
 TOKEN = files.properties_file.get_data()['token']  # the token for the bot
-
 
 async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in
@@ -117,6 +115,7 @@ if not TOKEN:
     isValid = False
     TOKEN = input("Enter the app bot user token: ")
 try:
+    logging.basicConfig(level=logging.INFO)  # Log discord debug information
     client.run(TOKEN)
     # client.run(TOKEN)
 except discord.LoginFailure:
