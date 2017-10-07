@@ -8,9 +8,10 @@ This is here to simplify the creation of new commands and checking if the users
 message matches the command correctly.
 """
 from enum import Enum
+from collections import deque
+import functools
 from src.user.permissions import PermissionLevel
 
-command_list = []
 ############################## Keyword Functions ##############################
 '''
 Every keyword function must match these criteria:
@@ -153,6 +154,26 @@ class CommandType(Enum):
     CUSTOM = 'Custom'  # User made
 
 
+# A dictionary holding commands in there command categories
+# Example layout:
+# {
+# 	'STANDARD': [
+# 		help, permission
+# 	],
+# 	'MODERATION': [
+# 		superuser, purge
+# 	],
+# 	'CUSTOM': [
+# 		cool, woaw
+# 	]
+# }
+# Note that the commands list under each category must be sorted by name.
+__commands = {}
+
+print(__commands)
+
+
+@functools.total_ordering
 class Command(object):
     """The object for creating user commands
     Args:
@@ -188,6 +209,12 @@ class Command(object):
             self.usage = name
         else:
             self.usage = usage.strip()
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __eq__(self, other):
+        return self.name == other.name
 
     def get_help(self):
         """ Returns the name and description of the command """
@@ -370,35 +397,37 @@ class CustomCommand (Command):
         return None
 
 
+def find_command(command):
+    """ Looks for the command in the commands list
+
+    Returns the type and the commands index if found (type, command_index)
+    Returns None if not found
+    """
+    for current_type in __commands.keys():
+        try:
+            index = __commands[current_type].index(command)
+            return current_type, index
+        except ValueError:
+            pass
+    return None
+
+
 def get_permitted_commands_for(permission_level):
-    """ Returns a list of permitted commands for the specified
+    """ Returns the permitted commands for the specified
     user based off their permissions
     """
-    commands_permitted = []
-    for i in command_list:
-        # Only show commands available to this permission level
-        if i.minimum_permission.value > permission_level.value:
-            continue
-        commands_permitted.append(i)
+    commands_permitted = {}
+    for type in __commands.keys():
+        for comm in __commands[type]:
+            # Only show commands available to this permission level
+            if comm.minimum_permission.value > permission_level.value:
+                continue
+            try:
+                commands_permitted[type].append(comm)
+            except KeyError:
+                commands_permitted[type] = deque([comm])
     return commands_permitted
 
-def order_commands_by_type():
-    """Orders the command list by type"""
-    global command_list
-    categorized_commands = {}
-
-    for type in CommandType:
-        categorized_commands[type] = []
-
-    for command in command_list:
-        categorized_commands[command.type].append(command)
-
-    # Move categorized commands into the commands list
-    command_list = []
-
-    for type in CommandType:
-        for command in categorized_commands[type]:
-            command_list.append(command)
 
 def add_command(command):
     """Adds the desired command to the command list
@@ -408,17 +437,66 @@ def add_command(command):
     Raises ImproperNameError if the command was given
         an improper name, this only applies to custom commands
     """
-    import src.file_functions as file_functions
+    if find_command(command) is not None:
+        return False
 
-    # Prevent having a command with the same
-    # first word as another that already exists, as
-    # custom command are not allowed to have spaces. So
-    # we only need to compare the first word of each one
-    for current_command in command_list:
-        if command.name == current_command.name.partition(' ')[0]:
-            return False
+    if command.type not in __commands.keys():
+        __commands[command.type] = deque([command])
+    else:
+        # Insert the command in the ordered location
+        __commands[command.type].append(command)
 
-    command_list.append(command)
-    # Re-order
-    order_commands_by_type()
     return True
+
+
+def add_multiple_commands(commands):
+    """Adds all the commands in the list to the command list"""
+    for comm in commands:
+        add_command(comm)
+
+
+def remove_command(command):
+    """Removes the desired command from the commands list
+
+    Returns True if successful
+    Returns False if the command does not exist in the list
+    """
+    command_type, index = find_command(command)
+    if index is None:
+        return False
+    del __commands[command_type][index]
+    return True
+
+
+def remove_command_by_name(command_name):
+    """Removes the desired command from the command list
+
+    Returns None if successful
+    Returns False if that command doesn't exist
+    """
+    for c_type in __commands:
+        for index, command in enumerate(__commands[c_type]):
+            if command.name == command_name:
+                del __commands[c_type][index]
+                return True
+    return False
+
+
+def get_commands(type=None):
+    """Returns all of the commands, by default returning everything.
+    If a command type is specified, it will return the commands with
+    that type
+    """
+    if type is None:
+        return __commands
+    return __commands[type]
+
+
+def get_commands_as_list():
+    """ Returns all of the commands in a single list
+    ex. [permission_command, superuser_command, ...]
+    """
+    list_of_comm = []
+    for type in __commands.keys():
+        list_of_comm.extend(list(__commands[type]))
+    return list_of_comm

@@ -1,7 +1,6 @@
 """Constants and initialization"""
 from src.user.commands import Command, get_keyword_string_of, \
-    CommandKeywords, command_list, \
-    CommandType, order_commands_by_type
+    CommandKeywords, CommandType, add_multiple_commands
 from src.user.permissions import PermissionLevel
 import src.command_functions as command_functions
 import src.file_functions as file_functions
@@ -85,22 +84,32 @@ COMMAND_ADD = Command('command add {} {}'.format(
     get_keyword_string_of(CommandKeywords.STRING)),
     'Creates a custom command',
     CommandType.STANDARD,
-    PermissionLevel.DEFAULT,
+    PermissionLevel.USER,
     command_functions.command_add,
     'command add <command name> | <command>')
 
-# Add these commands to the command list
-command_list.extend((
+COMMAND_REMOVE = Command('command remove {}'.format(
+    get_keyword_string_of(CommandKeywords.WORD)),
+    'Removes a custom command',
+    CommandType.STANDARD,
+    PermissionLevel.USER,
+    command_functions.command_remove,
+    'command remove <command name>')
+
+# Default commands
+commands_to_add = [
     HELP, PERMISSION_CHECK,
     LOGOUT_BOT, SET_PERM_TO_SUPERUSER,
     SET_PERM_TO_USER, SET_PERM_TO_DEFAULT,
     PURGE, RANDOM_NUMBER, RANDOM_NUMBER_FACT,
     CHOOSE, EIGHT_BALL, COMMAND_ADD,
-))
+    COMMAND_REMOVE
+]
 
 # Custom commands
 CUSTOM_COMMANDS = file_functions.load_custom_commands()
 for c in CUSTOM_COMMANDS:
-    command_list.append(c)
+    commands_to_add.append(c)
 
-order_commands_by_type()
+# Add all of these commands to the command list
+add_multiple_commands(commands_to_add)

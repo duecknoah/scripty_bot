@@ -59,7 +59,7 @@ async def run_command(message, FROM_CONSOLE=False):
 
     ############################## Default Commands ##########################
     # Loop through all of the commands in the commands list
-    for command in commands.command_list:
+    for command in commands.get_commands_as_list():
         # Check if the message typed matches a commands arguments and
         # the users minimum permissions required to use it
         match_result = command.matches(message_string, permission_level)

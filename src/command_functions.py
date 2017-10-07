@@ -23,16 +23,22 @@ async def help(client, message, match_result, as_permission, FROM_CONSOLE=False)
     commands_str_tidy = ''
     commands_list = commands.get_permitted_commands_for(as_permission)
 
-    note = '*NOTE that all commands begin with \'$\'*'
     if FROM_CONSOLE:
-        for i in commands_list:
-            commands_str_tidy += i.get_help() + '\n'
+        for command_type in commands_list.keys():
+            commands_str_tidy += '\n ******** {} ********\n'.format(
+                command_type.value)
+            for i in commands_list[command_type]:
+                commands_str_tidy += i.get_help() + '\n'
         print(commands_str_tidy)
     else:
-        for i in commands_list:
-            commands_str_tidy += i.get_help_decorated() + '\n'
+        for command_type in commands_list.keys():
+            commands_str_tidy += '\n**{}**\n'.format(command_type.value)
+            for i in commands_list[command_type]:
+                commands_str_tidy += i.get_help_decorated() + '\n'
         await client.send_message(message.channel, "**Available commands for {}:**\n{}\n{}"
-                                  .format(message.author.name, commands_str_tidy, note))
+                                  .format(message.author.name,
+                                          commands_str_tidy,
+                                          '*NOTE that all commands begin with \'$\'*'))
 
 
 async def permission_check(client, message, match_result, as_permission, FROM_CONSOLE=False):
@@ -52,7 +58,8 @@ async def logout_bot(client, message, match_result, as_permission, FROM_CONSOLE=
     from src.file import files
 
     if not FROM_CONSOLE:
-        await client.send_message(message.channel, "Logging out ...")
+        await client.send_message(message.channel, "This command can only be run via console.")
+        return
     print("Logging out.")
     await client.logout()
     # Saves all json files and any other data to file and makes bot logout
@@ -197,22 +204,37 @@ async def command_add(client, message, match_result, as_permission, FROM_CONSOLE
     reply = ''
 
     try:
-         success = commands.add_command(
+        success = commands.add_command(
             commands.CustomCommand(
                 match_result[0],
                 match_result[1],
                 custom_command))
-         if success:
-             reply = 'Added \'{}\' to the list of commands'.format(
-                 match_result[0])
-             file_functions.save_custom_commands()
-         else:
-             reply = 'A command with that name already exists!'
+        if success:
+            reply = 'Added \'{}\' to the list of commands'.format(
+                match_result[0])
+            file_functions.save_custom_commands()
+        else:
+            reply = 'A command with that name already exists!'
 
     except commands.ImproperNameError:
         reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
 
     await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
+
+
+async def command_remove(client, message, match_result, as_permission, FROM_CONSOLE=False):
+    import src.user.commands as commands
+    reply = ''
+
+    if commands.remove_command_by_name(match_result[0]):
+        reply = 'Removed the command \'{}\' from the commands list'.format(
+            match_result[0])
+        file_functions.save_custom_commands()
+    else:
+        reply = 'That command doesn\'t exist'
+
+    await reply_simple(client, reply, None if FROM_CONSOLE else message.channel)
+
 
 async def custom_command(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The command run for all custom commands,
