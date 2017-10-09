@@ -170,8 +170,6 @@ class CommandType(Enum):
 # Note that the commands list under each category must be sorted by name.
 __commands = {}
 
-print(__commands)
-
 
 @functools.total_ordering
 class Command(object):
