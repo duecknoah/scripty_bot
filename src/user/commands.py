@@ -171,7 +171,6 @@ class CommandType(Enum):
 __commands = {}
 
 
-@functools.total_ordering
 class Command(object):
     """The object for creating user commands
     Args:
@@ -207,12 +206,6 @@ class Command(object):
             self.usage = name
         else:
             self.usage = usage.strip()
-
-    def __lt__(self, other):
-        return self.name < other.name
-
-    def __eq__(self, other):
-        return self.name == other.name
 
     def get_help(self):
         """ Returns the name and description of the command """
