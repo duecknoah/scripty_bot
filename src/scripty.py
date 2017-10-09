@@ -25,6 +25,7 @@ from src import C_PREFIX
 client = discord.Client()
 TOKEN = files.properties_file.get_data()['token']  # the token for the bot
 
+
 async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in
        However, if its not (ex. message sent through the client), then the
@@ -117,7 +118,6 @@ if not TOKEN:
 try:
     logging.basicConfig(level=logging.INFO)  # Log discord debug information
     client.run(TOKEN)
-    # client.run(TOKEN)
 except discord.LoginFailure:
     print("Invalid token. "
           "Setup your bot and get its token at: "
