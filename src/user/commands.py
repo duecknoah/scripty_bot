@@ -259,7 +259,7 @@ class Command(object):
         string = string.strip()  # the string we want to test
         # the command's name we want to match to
         command_name_as_tuple = tuple(self.name.split())
-        string_as_tuple = tuple(string.split())
+        string_as_tuple = tuple(string.split(' '))
         results = []
         string_word_offset = 0  # Used if
 
