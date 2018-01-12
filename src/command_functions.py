@@ -110,6 +110,7 @@ async def purge(client, message, match_result, as_permission, FROM_CONSOLE=False
     amt = int(match_result[0])
     MAX_AMT = 100
     amt = MAX_AMT if amt > MAX_AMT else amt
+    amt = 0 if amt < 0 else amt
 
     try:
         # we add one to remove this message that was typed

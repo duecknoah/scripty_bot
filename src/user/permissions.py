@@ -15,6 +15,14 @@ class PermissionLevel(IntEnum):
     USER = 1  # The middle permission, allows a user to use general commands like running a script
     SUPERUSER = 2  # The highest permission, allows a user to use any command
 
+class PermissionDeniedError(Exception):
+    """An error when the user attempts to do
+    something they don't have permission to do.
+    """
+
+    def __init__(self, arg):
+        self.strerror = arg
+        self.args = {arg}
 
 # Permission labels corresponding to their permission
 PERMISSION_LABELS = {

@@ -9,8 +9,7 @@ message matches the command correctly.
 """
 from enum import Enum
 from collections import deque
-import functools
-from src.user.permissions import PermissionLevel
+from src.user.permissions import PermissionLevel, PermissionDeniedError
 
 ############################## Keyword Functions ##############################
 '''
@@ -336,10 +335,10 @@ class Command(object):
             # The string and permission fully matches the command criteria,
             # return the results!
             return tuple(results)
+
         # Denied permission level, so it does not match the command
         # requirements
-        return None
-
+        raise PermissionDeniedError('Permission denied')
 
 class ImproperNameError (Exception):
     """An error when the naming of a string

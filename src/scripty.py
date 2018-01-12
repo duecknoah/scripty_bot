@@ -12,6 +12,7 @@ from src.file import files
 import src.user.permissions as permissions
 import src.user.commands as commands
 import src.file_functions as file_functions
+import src.command_functions as command_func
 from src import C_PREFIX
 
 # Initialization stuff
@@ -50,15 +51,21 @@ async def run_command(message, FROM_CONSOLE=False):
     # Remove the prefix as we don't want it in our way now
     message_string = message_string[1:]
 
+    print(message_string)
+
     ############################## Default Commands ##########################
     # Loop through all of the commands in the commands list
     for command in commands.get_commands_as_list():
         # Check if the message typed matches a commands arguments and
         # the users minimum permissions required to use it
-        match_result = command.matches(message_string, permission_level)
-        if match_result is not None and command.function is not None:
-            await command.function(client, message, match_result, permission_level, FROM_CONSOLE)
-            return
+        try:
+            match_result = command.matches(message_string, permission_level)
+            if match_result is not None and command.function is not None:
+                await command.function(client, message, match_result, permission_level, FROM_CONSOLE)
+                return
+        except permissions.PermissionDeniedError as e:
+            await command_func.reply_simple(client, e.strerror,
+                                            None if FROM_CONSOLE else message.channel)
 
 '''This is the console that allows the owner who is running the server to always have permission
 as a superuser.
@@ -81,7 +88,7 @@ async def on_ready():
     print(client.user.id)
     print('------')
     print("To add the bot to your server, open the link below:\n"
-          "https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=0"
+          "https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=43008"
           .format(client.user.id))
     # Update token
     p_json = files.properties_file.get_data()
