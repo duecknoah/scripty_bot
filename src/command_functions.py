@@ -241,7 +241,6 @@ async def custom_command(client, message, match_result, as_permission, FROM_CONS
     """
     await reply_simple(client, match_result, None if FROM_CONSOLE else message.channel)
 
-
 async def reply_simple(client, message, channel=None):
     if channel is None:
         print(message)

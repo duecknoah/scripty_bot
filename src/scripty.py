@@ -1,11 +1,4 @@
-"""Scripty-Bot is a bot for Discord that allows users to run scripts on the host
-
-    TODO:
-        - Add ability to add and remove scripts
-        - Allow execution of scripts via command
-        - Show a list of all scripts
-        - Show a list of currently running scripts
-        - Kill specific running scripts via command
+"""Scripty-Bot is a simple bot for Discord that does what you need it to
 """
 import os.path
 # Support for modification in file path
@@ -32,6 +25,7 @@ async def run_command(message, FROM_CONSOLE=False):
        message string is stored in message.content. This is done to simplify message
        checks
     '''
+
     # Ignore messages written by the bot (itself) to prevent spamming
     if not FROM_CONSOLE:
         if message.author.id == client.user.id:
