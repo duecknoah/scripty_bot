@@ -70,8 +70,6 @@ async def run_command(message, FROM_CONSOLE=False):
 '''This is the console that allows the owner who is running the server to always have permission
 as a superuser.
 '''
-
-
 async def console():
     while True:
         text = await aioconsole.ainput('$ ')
@@ -97,7 +95,8 @@ async def on_ready():
     # Make user add self as a superuser
     if len(files.users_file.get_data()['superusers']) == 0:
         first_superuser = input(
-            "Add yourself as a superuser (input user id): ")
+            "Add yourself as a superuser (input user id): "
+        )
         users = files.users_file.get_data()
         users['superusers'].append(first_superuser)
     # Enable console to run for host to type commands through while bot is

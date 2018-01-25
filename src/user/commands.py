@@ -206,6 +206,12 @@ class Command(object):
         else:
             self.usage = usage.strip()
 
+    def __eq__(self, other):
+        """Commands are considered equal if they share the same name"""
+        if (self.name == other.name):
+            return True
+        return False
+
     def get_help(self):
         """ Returns the name and description of the command """
         return "{}: {}".format(self.usage, self.desc)
