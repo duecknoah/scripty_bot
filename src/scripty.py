@@ -61,7 +61,10 @@ async def run_command(message, FROM_CONSOLE=False):
         try:
             match_result = command.matches(message_string, permission_level)
             if match_result is not None and command.function is not None:
-                await command.function(client, message, match_result, permission_level, FROM_CONSOLE)
+                cmd_args = command_func.CommandArgs(
+                    client, message, match_result, permission_level, FROM_CONSOLE
+                )
+                await command.function(cmd_args)
                 return
         except permissions.PermissionDeniedError as e:
             await command_func.reply_simple(client, e.strerror,
