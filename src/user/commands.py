@@ -337,11 +337,18 @@ class Command(object):
 
         # Lastly, verify that the permission_level is allowed to execute this
         # command
-        if permission_level.value >= self.minimum_permission.value:
+        if self.has_permission_with(permission_level.value):
             # The string and permission fully matches the command criteria,
             # return the results!
             return tuple(results)
 
+    def has_permission_with(self, perm):
+        """ Checks if the given permission level (perm) can execute this command
+        Returns true if so
+        Raises PermissionDeniedError otherwise
+        """
+        if (perm >= self.minimum_permission.value):
+            return True
         # Denied permission level, so it does not match the command
         # requirements
         raise PermissionDeniedError('Permission denied')
