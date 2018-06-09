@@ -13,6 +13,22 @@ import src.user.permissions as permissions
 import src.file_functions as file_functions
 import random
 
+class CommandArgs:
+    """ An object for passing into command functions as a single argument. It
+    holds data most used for each command function below
+    """
+    def __init__(self,
+                 client=None,
+                 message=None,
+                 match_result=(),
+                 as_permission=permissions.PermissionLevel.DEFAULT,
+                 is_from_console=False
+                 ):
+        self.client = client
+        self.message = message
+        self.match_result = match_result
+        self.as_permission = as_permission
+        self.is_from_console=is_from_console
 
 async def help(client, message, match_result, as_permission, FROM_CONSOLE=False):
     """The help command, returns the list of commands
