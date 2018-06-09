@@ -51,8 +51,6 @@ async def run_command(message, FROM_CONSOLE=False):
     # Remove the prefix as we don't want it in our way now
     message_string = message_string[1:]
 
-    print(message_string)
-
     ############################## Default Commands ##########################
     # Loop through all of the commands in the commands list
     for command in commands.get_commands_as_list():

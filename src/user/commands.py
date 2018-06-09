@@ -254,7 +254,7 @@ class Command(object):
                     say_hi_to <@782311255082572245> <@282311255082572241>
                     NOTE: in Discord, the <@numbers> represents a user mention
 
-                this matches function would return the result based on the
+                this function would return the result based on the
                 keyword_function for the USER_REFERENCE command:
                     (782311255082572245, 282311255082572241)
 
@@ -266,7 +266,7 @@ class Command(object):
         command_name_as_tuple = tuple(self.name.split())
         string_as_tuple = tuple(string.split(' '))
         results = []
-        string_word_offset = 0  # Used if
+        string_word_offset = 0
 
         # Go through word by word comparing the string to the command name
         for i in range(len(command_name_as_tuple)
