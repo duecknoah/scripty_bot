@@ -20,6 +20,32 @@ client = discord.Client()
 TOKEN = files.properties_file.get_data()['token']  # the token for the bot
 
 
+def extract_message_data(message, FROM_CONSOLE=False):
+    """Extracts data from the message string and returns the following tuple:
+       (message_string, permission_level, is_command)
+
+       message_string (str) - text of the message sent
+       permission_level (permissions.PermissionLevel.*) - the permitted level of the user who sent the message
+       is_command (bool) - is the message a command?
+    """
+    if FROM_CONSOLE:
+        permission_level = permissions.PermissionLevel.SUPERUSER
+        message_string = message
+    else:
+        permission_level = file_functions.get_user_permission_level(
+            message.author.id)
+        message_string = message.content
+
+    # It is considered a command if the message string begins with the prefix
+    #   ex. $example command
+    #   Where the '$' is the prefix in this case
+    is_command = message_string.startswith(C_PREFIX)
+
+    # Remove the prefix as we don't want it in our way now
+    message_string = message_string[1:]
+    return message_string, permission_level, is_command
+
+
 async def run_command(message, FROM_CONSOLE=False):
     '''If run from console, then make message string simply the message sent in
        However, if its not (ex. message sent through the client), then the
@@ -32,24 +58,11 @@ async def run_command(message, FROM_CONSOLE=False):
         if message.author.id == client.user.id:
             return
 
-    # Get permission level and string of message
-    permission_level = permissions.PermissionLevel.DEFAULT
-    message_string = ''
+    # Extract message data
+    message_string, permission_level, is_command = extract_message_data(message, FROM_CONSOLE)
 
-    if FROM_CONSOLE:
-        permission_level = permissions.PermissionLevel.SUPERUSER
-        message_string = message
-    else:
-        permission_level = file_functions.get_user_permission_level(
-            message.author.id)
-        message_string = message.content
-
-    # If the message doesn't start with the prefix, return
-    if not message_string.startswith(C_PREFIX):
+    if not is_command:
         return
-
-    # Remove the prefix as we don't want it in our way now
-    message_string = message_string[1:]
 
     ############################## Default Commands ##########################
     # Loop through all of the commands in the commands list
