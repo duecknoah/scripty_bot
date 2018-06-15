@@ -52,7 +52,7 @@ async def help(cmd_args: CommandArgs):
             commands_str_tidy += '\n**{}**\n'.format(command_type.value)
             for i in commands_list[command_type]:
                 commands_str_tidy += i.get_help_decorated() + '\n'
-        await cmd_args.client.send_message(cmd_args.message.channel, "**Available commands for {}:**\n{}\n{}"
+        await reply_simple_cmd_args(cmd_args, "**Available commands for {}:**\n{}\n{}"
                                   .format(cmd_args.message.author.name,
                                           commands_str_tidy,
                                           '*NOTE that all commands begin with \'$\'*'))
@@ -63,7 +63,7 @@ async def permission_check(cmd_args: CommandArgs):
     if cmd_args.is_from_console:
         print(permissions.PermissionLevel.SUPERUSER)
     else:
-        await cmd_args.client.send_message(cmd_args.message.channel, "{}'s permission level is {}"
+        await reply_simple_cmd_args(cmd_args, "{}'s permission level is {}"
                                   .format(cmd_args.message.author.name,
                                           permissions.get_label_of_permission(
                                               cmd_args.as_permission)))
@@ -75,7 +75,7 @@ async def logout_bot(cmd_args: CommandArgs):
     from src.file import files
 
     if not cmd_args.is_from_console:
-        await cmd_args.client.send_message(cmd_args.message.channel, "This command can only be run via console.")
+        await reply_simple_cmd_args(cmd_args, 'This command can only be run via console.')
         return
     print("Logging out.")
     await cmd_args.client.logout()
@@ -112,7 +112,7 @@ async def __set_perm_to(permission, cmd_args: CommandArgs):
     # Set the users permission
     reply_message = file_functions.set_user_permission(
         user_to_add_id, cmd_args.client, permission)
-    await reply_simple(cmd_args.client, reply_message, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, reply_message)
 
 
 async def purge(cmd_args: CommandArgs):
@@ -133,9 +133,9 @@ async def purge(cmd_args: CommandArgs):
     try:
         # we add one to remove this message that was typed
         await cmd_args.client.purge_from(cmd_args.message.channel, limit=amt + 1)
-        await cmd_args.client.send_message(cmd_args.message.channel, "Removed {} messages".format(amt))
+        await reply_simple_cmd_args(cmd_args, "Removed {} messages".format(amt))
     except discord.errors.Forbidden:
-        await cmd_args.client.send_message(cmd_args.message.channel,
+        await reply_simple_cmd_args(cmd_args,
                                            "I do not have the privileges to do that on this server or channel")
 
 
@@ -143,14 +143,14 @@ async def random_number(cmd_args: CommandArgs):
     """Generates a random number between 1 and 'number'"""
     NUM_MIN = 0
     NUM_MAX = int(cmd_args.match_result[0])
-    reply = ''
+
     try:
         rand_number = random.randint(NUM_MIN, NUM_MAX)
         reply = "The random number is {}".format(rand_number)
     except ValueError:
         reply = "Invalid range, must be at least 0"
 
-    await reply_simple(cmd_args.client, reply, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, reply)
 
 
 async def random_fact(cmd_args: CommandArgs):
@@ -167,7 +167,7 @@ async def random_fact(cmd_args: CommandArgs):
     response_as_text = response_as_text[2:-1]  # Remove extra characters
     fact = html.unescape(response_as_text)
 
-    await reply_simple(cmd_args.client, fact, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, fact)
 
 
 async def choose(cmd_args: CommandArgs):
@@ -184,7 +184,7 @@ async def choose(cmd_args: CommandArgs):
         0, len(possible_sentences) - 1)]
     reply = sentence_chosen.format(option_chosen)
 
-    await reply_simple(cmd_args.client, reply, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, reply)
 
 
 async def eight_ball(cmd_args: CommandArgs):
@@ -214,7 +214,7 @@ async def eight_ball(cmd_args: CommandArgs):
     sentence_chosen = possible_sentences[random.randint(
         0, len(possible_sentences) - 1)]
 
-    await reply_simple(cmd_args.client, sentence_chosen, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, sentence_chosen)
 
 
 async def command_add(cmd_args: CommandArgs):
@@ -238,7 +238,7 @@ async def command_add(cmd_args: CommandArgs):
     except commands.ImproperNameError:
         reply = 'The command name can\'t contain any spaces! Ex. command add Hello Why hello there'
 
-        await reply_simple(cmd_args.client, reply, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, reply)
 
 
 async def command_remove(cmd_args: CommandArgs):
@@ -252,14 +252,14 @@ async def command_remove(cmd_args: CommandArgs):
     else:
         reply = 'That command doesn\'t exist'
 
-    await reply_simple(cmd_args.client, reply, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, reply)
 
 
 async def custom_command(cmd_args: CommandArgs):
     """The command run for all custom commands,
     simply just passing a message through to the user
     """
-    await reply_simple(cmd_args.client, cmd_args.match_result, None if cmd_args.is_from_console else cmd_args.message.channel)
+    await reply_simple_cmd_args(cmd_args, cmd_args.match_result)
 
 
 async def reply_simple(client, message, channel=None):
@@ -267,3 +267,12 @@ async def reply_simple(client, message, channel=None):
         print(message)
     else:
         await client.send_message(channel, message)
+
+
+async def reply_simple_cmd_args(cmd_args: CommandArgs, message):
+    """A wrapper function for reply_simple, simplifies replys when
+    dealing with a CommandArgs object
+    """
+    await reply_simple(cmd_args.client, message,
+                       None if cmd_args.is_from_console
+                       else cmd_args.message.channel)
