@@ -1,2 +1,3 @@
-cd src
-python3 scripty.py
+docker run -it --rm --name scripty-bot \
+-v scripty-vol:/data \
+duecknoah/scripty-bot

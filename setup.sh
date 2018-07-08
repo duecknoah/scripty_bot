@@ -1,12 +1,5 @@
-echo "Setting up scripty-bot ..."
+#/bin/bash
 
-cd src
-sudo apt-get install python3
-sudo apt-get install python3-pip
-sudo -H python3 -m pip install -U setuptools
-sudo -H python3 -m pip install -U discord.py
-sudo -H python3 -m pip install -U aioconsole
+# build the scripty-bot container
+docker build -t duecknoah/scripty-bot .
 
-echo "*************************************************************
-Setup complete, you can now run the bot by running start.sh
-*************************************************************"
